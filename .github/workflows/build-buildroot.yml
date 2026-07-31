@@ -2,6 +2,12 @@ name: Build Buildroot
 
 on:
   workflow_dispatch:
+    inputs:
+      branch_name:
+        default: "2025.02.x"
+        description: "请输入分支版本号："
+        required: true
+      
   push:
     branches:
       - master
@@ -14,9 +20,8 @@ on:
 
 env:
   REPO_URL: https://github.com/buildroot/buildroot
-  REPO_BRANCH: 2025.02.x
+  REPO_BRANCH: ${{ github.event.inputs.branch_name }}
   CONFIG_FILE: .config
-  SSH_ACTIONS: true
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
@@ -59,7 +64,8 @@ jobs:
 
     - name: SSH connection to Actions
       uses: csexton/debugger-action@master
-      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
+      if: github.event_name == 'workflow_dispatch'
+      
 
     - name: Compile the firmware
       id: compile
